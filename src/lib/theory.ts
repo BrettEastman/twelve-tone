@@ -2,7 +2,7 @@
 // everything here is arrays of numbers mod 12.
 
 export type PitchClass = number; // 0-11
-export type Row = PitchClass[]; // length 12, each pc exactly once
+export type Row = PitchClass[]; // any length; pcs may repeat when length > 12
 
 export type FormKind = 'P' | 'I' | 'R' | 'RI';
 
@@ -15,9 +15,6 @@ export interface FormId {
 }
 
 export const mod12 = (x: number): number => ((x % 12) + 12) % 12;
-
-export const isCompleteRow = (row: Row): boolean =>
-	row.length === 12 && new Set(row.map(mod12)).size === 12;
 
 // Inversion about the row's first note: I0 starts on the same pc as P0 and
 // mirrors every interval.

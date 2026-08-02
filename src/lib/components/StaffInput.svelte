@@ -4,12 +4,20 @@
 	import {
 		addNote,
 		clearRow,
+		MAX_ROW_LENGTH,
+		MIN_ROW_LENGTH,
 		removeNoteAt,
 		rowState,
 		setAccidentalMode,
 		setClef,
+		setRowLength,
 		toggleEraseMode
 	} from '$lib/rowState.svelte';
+
+	const lengthOptions = Array.from(
+		{ length: MAX_ROW_LENGTH - MIN_ROW_LENGTH + 1 },
+		(_, i) => MIN_ROW_LENGTH + i
+	);
 
 	const LOGICAL_WIDTH = 760;
 	const LOGICAL_HEIGHT = 190;
@@ -104,7 +112,7 @@
 			return;
 		}
 
-		if (rowState.entries.length >= 12) return;
+		if (rowState.entries.length >= rowState.rowLength) return;
 
 		// One diatonic step per half line-spacing, measured from the top line.
 		const topLineY = drawnStave.getYForLine(0);
@@ -157,6 +165,18 @@
 			</select>
 		</label>
 
+		<label class="clef-select">
+			Length
+			<select
+				value={rowState.rowLength}
+				onchange={(e) => setRowLength(Number(e.currentTarget.value))}
+			>
+				{#each lengthOptions as n (n)}
+					<option value={n}>{n}</option>
+				{/each}
+			</select>
+		</label>
+
 		<div class="accidental-group" role="group" aria-label="Accidental">
 			{#each accidentalOptions as option (option.name)}
 				<button
@@ -203,13 +223,13 @@
 	<p class="hint" class:warning={rowState.inputMessage}>
 		{#if rowState.inputMessage}
 			{rowState.inputMessage}
-		{:else if rowState.entries.length === 12}
+		{:else if rowState.entries.length === rowState.rowLength}
 			Row complete — click a label around the matrix below to see and hear that form.
 		{:else if rowState.eraseMode}
 			Erase mode: click a note to remove it.
 		{:else}
-			Click the staff to place note {rowState.entries.length + 1} of 12. Choose ♯ or ♭ first for
-			accidentals.
+			Click the staff to place note {rowState.entries.length + 1} of {rowState.rowLength}.
+			Choose ♯ or ♭ first for accidentals.
 		{/if}
 	</p>
 </div>

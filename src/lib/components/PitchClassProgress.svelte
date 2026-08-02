@@ -3,15 +3,18 @@
 	import { rowState } from '$lib/rowState.svelte';
 
 	// Chips in chromatic order; entered pcs show the user's own spelling and
-	// their position in the row.
+	// their position in the row. Rows longer than 12 can repeat a pc — the
+	// chip then carries a ×count badge alongside the first position.
 	const chips = $derived(
 		PC_NAMES.map((name, pc) => {
 			const index = rowState.entries.findIndex((e: SpelledNote) => e.pc === pc);
 			const entry = index === -1 ? null : rowState.entries[index];
+			const count = rowState.entries.filter((e: SpelledNote) => e.pc === pc).length;
 			return {
 				pc,
 				label: entry ? pretty(entry) : name,
 				order: index === -1 ? null : index + 1,
+				count,
 				flash: rowState.rejectedPc === pc
 			};
 		})
@@ -26,10 +29,13 @@
 					<span class="order">{chip.order}</span>
 				{/if}
 				{chip.label}
+				{#if chip.count > 1}
+					<span class="count">×{chip.count}</span>
+				{/if}
 			</span>
 		{/each}
 	</div>
-	<span class="counter">{rowState.entries.length} / 12</span>
+	<span class="counter">{rowState.entries.length} / {rowState.rowLength}</span>
 </div>
 
 <style>
@@ -72,6 +78,12 @@
 	.order {
 		font-size: 0.65rem;
 		opacity: 0.7;
+	}
+
+	.count {
+		font-size: 0.65rem;
+		opacity: 0.85;
+		font-weight: 600;
 	}
 
 	.counter {

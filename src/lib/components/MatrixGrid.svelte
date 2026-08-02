@@ -18,16 +18,16 @@
 		rowState.selectedForm?.kind === form.kind && rowState.selectedForm?.n === form.n;
 
 	// The selected form highlights its whole row (P/R) or column (I/RI).
-	const selectedRow = $derived(
-		rowState.selectedForm && (rowState.selectedForm.kind === 'P' || rowState.selectedForm.kind === 'R')
-			? labels.p.indexOf(rowState.selectedForm.n)
-			: null
-	);
-	const selectedCol = $derived(
-		rowState.selectedForm && (rowState.selectedForm.kind === 'I' || rowState.selectedForm.kind === 'RI')
-			? labels.i.indexOf(rowState.selectedForm.n)
-			: null
-	);
+	// Compared by label value, not index: rows longer than 12 repeat pitch
+	// classes, so the same label can appear on several rows/columns.
+	const isSelectedRow = (i: number): boolean =>
+		rowState.selectedForm !== null &&
+		(rowState.selectedForm.kind === 'P' || rowState.selectedForm.kind === 'R') &&
+		labels.p[i] === rowState.selectedForm.n;
+	const isSelectedCol = (j: number): boolean =>
+		rowState.selectedForm !== null &&
+		(rowState.selectedForm.kind === 'I' || rowState.selectedForm.kind === 'RI') &&
+		labels.i[j] === rowState.selectedForm.n;
 </script>
 
 <div class="matrix-wrapper">
@@ -57,7 +57,7 @@
 						<td
 							class="cell"
 							class:crosshair={hover?.i === i || hover?.j === j}
-							class:in-selection={selectedRow === i || selectedCol === j}
+							class:in-selection={isSelectedRow(i) || isSelectedCol(j)}
 							onmouseenter={() => (hover = { i, j })}
 						>
 							{prettyPc(pc, spellingMap)}

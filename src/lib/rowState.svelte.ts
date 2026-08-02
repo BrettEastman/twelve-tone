@@ -4,8 +4,12 @@
 import { pcOf, pretty, type AccidentalSym, type Clef, type SpelledNote } from './spelling';
 import type { FormId } from './theory';
 
+export const MIN_ROW_LENGTH = 3;
+export const MAX_ROW_LENGTH = 17;
+
 export interface RowStateShape {
-	entries: SpelledNote[]; // P0 in entry order, max 12
+	entries: SpelledNote[]; // P0 in entry order, max rowLength
+	rowLength: number; // target length, MIN_ROW_LENGTH..MAX_ROW_LENGTH
 	clef: Clef;
 	accidentalMode: AccidentalSym; // toolbar selection; null = natural
 	eraseMode: boolean;
@@ -16,6 +20,7 @@ export interface RowStateShape {
 
 export const rowState = $state<RowStateShape>({
 	entries: [],
+	rowLength: 12,
 	clef: 'treble',
 	accidentalMode: null,
 	eraseMode: false,
@@ -37,13 +42,15 @@ const flashMessage = (message: string, pc: number | null = null) => {
 };
 
 export const addNote = (note: Omit<SpelledNote, 'pc'>): boolean => {
-	if (rowState.entries.length >= 12) {
-		flashMessage('The row already has all twelve notes.');
+	if (rowState.entries.length >= rowState.rowLength) {
+		flashMessage(`The row already has all ${rowState.rowLength} notes.`);
 		return false;
 	}
 	const pc = pcOf(note);
 	const existingIndex = rowState.entries.findIndex((e) => e.pc === pc);
-	if (existingIndex !== -1) {
+	// Rows longer than 12 must repeat pitch classes (pigeonhole), so the
+	// classic no-duplicate rule only applies at 12 or fewer.
+	if (rowState.rowLength <= 12 && existingIndex !== -1) {
 		const existing = rowState.entries[existingIndex];
 		flashMessage(
 			`${pretty(note)} is already in the row as ${pretty(existing)} (note ${existingIndex + 1}).`,
@@ -74,6 +81,16 @@ export const clearRow = (): void => {
 
 export const setClef = (clef: Clef): void => {
 	rowState.clef = clef;
+};
+
+export const setRowLength = (length: number): void => {
+	const clamped = Math.max(MIN_ROW_LENGTH, Math.min(MAX_ROW_LENGTH, Math.round(length)));
+	rowState.rowLength = clamped;
+	if (rowState.entries.length > clamped) {
+		rowState.entries.splice(clamped);
+		flashMessage(`Row shortened to ${clamped} notes.`);
+	}
+	rowState.selectedForm = null;
 };
 
 export const setAccidentalMode = (mode: AccidentalSym): void => {

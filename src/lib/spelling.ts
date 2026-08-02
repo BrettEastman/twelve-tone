@@ -22,14 +22,51 @@ export const SEMITONES: Record<Letter, number> = { C: 0, D: 2, E: 4, F: 5, G: 7,
 export const pcOf = (s: Spelling): PitchClass =>
 	mod12(SEMITONES[s.letter] + (s.accidental === '#' ? 1 : s.accidental === 'b' ? -1 : 0));
 
-// A complete row contains every pc exactly once, so the user's twelve entered
-// notes define a total map pc -> spelling. Every derived form permutes the
-// same twelve pcs, which means every note of every form reuses the user's own
-// spelling — no respelling policy needed.
+// The user's entered notes define a map pc -> spelling (first entry wins when
+// a pc repeats, so a repeated pc keeps one consistent spelling). For rows
+// shorter than 12 tones, transposed forms contain pcs outside this map, so
+// completeSpellingMap fills the gaps with defaults that follow the user's
+// flat/sharp tendency.
 export const buildSpellingMap = (entries: SpelledNote[]): Map<PitchClass, Spelling> => {
 	const map = new Map<PitchClass, Spelling>();
 	for (const e of entries) {
-		map.set(e.pc, { letter: e.letter, accidental: e.accidental });
+		if (!map.has(e.pc)) {
+			map.set(e.pc, { letter: e.letter, accidental: e.accidental });
+		}
+	}
+	return map;
+};
+
+const SHARP_SPELLINGS: Spelling[] = [
+	{ letter: 'C', accidental: null },
+	{ letter: 'C', accidental: '#' },
+	{ letter: 'D', accidental: null },
+	{ letter: 'D', accidental: '#' },
+	{ letter: 'E', accidental: null },
+	{ letter: 'F', accidental: null },
+	{ letter: 'F', accidental: '#' },
+	{ letter: 'G', accidental: null },
+	{ letter: 'G', accidental: '#' },
+	{ letter: 'A', accidental: null },
+	{ letter: 'A', accidental: '#' },
+	{ letter: 'B', accidental: null }
+];
+
+const FLAT_SPELLINGS: Spelling[] = SHARP_SPELLINGS.map((s, pc) =>
+	s.accidental === '#' ? { letter: SHARP_SPELLINGS[(pc + 1) % 12].letter, accidental: 'b' } : s
+);
+
+// Total map over all 12 pcs: the user's own spellings, with gaps filled by
+// defaults matching their accidental tendency (ties go to sharps).
+export const completeSpellingMap = (entries: SpelledNote[]): Map<PitchClass, Spelling> => {
+	const map = buildSpellingMap(entries);
+	const flats = entries.filter((e) => e.accidental === 'b').length;
+	const sharps = entries.filter((e) => e.accidental === '#').length;
+	const defaults = flats > sharps ? FLAT_SPELLINGS : SHARP_SPELLINGS;
+	for (let pc = 0; pc < 12; pc++) {
+		if (!map.has(pc)) {
+			map.set(pc, defaults[pc]);
+		}
 	}
 	return map;
 };
