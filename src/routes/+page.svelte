@@ -3,14 +3,14 @@
 	import PitchClassProgress from '$lib/components/PitchClassProgress.svelte';
 	import RowFormPanel from '$lib/components/RowFormPanel.svelte';
 	import StaffInput from '$lib/components/StaffInput.svelte';
-	import { buildSpellingMap } from '$lib/spelling';
+	import { completeSpellingMap } from '$lib/spelling';
 	import { buildMatrix } from '$lib/theory';
 	import { rowState } from '$lib/rowState.svelte';
 
-	const complete = $derived(rowState.entries.length === 12);
+	const complete = $derived(rowState.entries.length === rowState.rowLength);
 	const row = $derived(rowState.entries.map((e) => e.pc));
 	const matrix = $derived(complete ? buildMatrix(row) : null);
-	const spellingMap = $derived(buildSpellingMap(rowState.entries));
+	const spellingMap = $derived(completeSpellingMap(rowState.entries));
 </script>
 
 <section class="card" class:complete>
