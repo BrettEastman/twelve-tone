@@ -4,6 +4,8 @@
   import favicon from "$lib/assets/favicon.svg";
 
   let { children } = $props();
+
+  const currentYear = new Date().getFullYear();
 </script>
 
 <svelte:head>
@@ -26,7 +28,16 @@
   </main>
 
   <footer class="site-footer">
-    <p>After the method of Arnold Schoenberg</p>
+    <p>
+      After the method of Arnold Schoenberg, but expanded to support various
+      lengths.
+    </p>
+    <p>Copyright © {currentYear} Lost Lanes Publishing</p>
+    <p>
+      Created by <a target="_blank" href="https://brettaustineastman.com"
+        >Brett Austin Eastman</a
+      >
+    </p>
   </footer>
 </div>
 
@@ -60,5 +71,16 @@
     color: var(--color-muted);
     font-size: var(--text-sm);
     font-style: italic;
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    letter-spacing: 0.05em;
+  }
+
+  a:hover {
+    color: var(--color-accent);
   }
 </style>
