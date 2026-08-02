@@ -1,7 +1,6 @@
 <script lang="ts">
   import "../styles/tokens.css";
   import "../styles/base.css";
-  import favicon from "$lib/assets/favicon.svg";
 
   let { children } = $props();
 
@@ -9,7 +8,6 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href={favicon} />
   <title>Tone Row Generator</title>
 </svelte:head>
 
@@ -34,7 +32,8 @@
     </p>
     <p>Copyright © {currentYear} Lost Lanes Publishing</p>
     <p>
-      Created by <a target="_blank" href="https://brettaustineastman.com"
+      Created by
+      <a target="_blank" href="https://brettaustineastman.com"
         >Brett Austin Eastman</a
       >
     </p>
