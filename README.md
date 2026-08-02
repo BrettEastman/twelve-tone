@@ -1,7 +1,7 @@
-# Twelve-Tone Matrix
+# Tone Row Matrix
 
-A single-page web app for working with twelve-tone rows. Enter a row by clicking notes onto a
-staff, and the app builds the traditional 12x12 matrix and lets you view and hear any of the
+A single-page web app for working with tone rows of any length from 3 to 17. Enter a row by clicking notes onto a
+staff, and the app builds the matrix and lets you view and hear any of the
 48 row forms in notation.
 
 ## Features
